@@ -9,6 +9,11 @@ RUN curl http://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz -o /tmp/nginx-$
     && useradd nginx -s /sbin/nologin -M
 WORKDIR /tmp/nginx-${NGINX_VERSION}
 RUN ./configure --prefix=/apps/nginx \
+     --conf-path=/etc/nginx/nginx.conf \
+     --error-log-path=/var/log/nginx/error.log \
+     --http-log-path=/var/log/nginx/access.log \
+     --pid-path=/var/run/nginx.pid \
+     --lock-path=/var/run/nginx.lock \
      --user=nginx \
      --group=nginx \
      --with-http_ssl_module \
