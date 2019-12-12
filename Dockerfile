@@ -1,18 +1,28 @@
 FROM centos:7
-ENV NGINX_VERSION=nginx-1.14.0
-RUN yum -y install gcc pcre pcre-devel wget openssl-devel make
-RUN mkdir -p /opt/software \
-    && mkdir -p /application/"${NGINX_VERSION}.tar.gz"
-WORKDIR /opt/software
-RUN wget -q http://nginx.org/download/"${NGINX_VERSION}.tar.gz"
-RUN useradd nginx -s /sbin/nologin -M \
-    && tar xvf "${NGINX_VERSION}.tar.gz" 
-WORKDIR ${NGINX_VERSION}
-RUN ./configure --user=nginx --group=nginx \
-    --prefix=/application/${NGINX_VERSION} \
-    --with-http_stub_status_module \
-    --with-http_ssl_module \
-    && make && make install
-RUN ln -s /application/${NGINX_VERSION}/ /application/nginx 
+LABEL author=ljmict email=ljmict@163.com
+ENV NGINX_VERSION=1.16.1
+RUN yum -y install gcc pcre pcre-devel openssl-devel make \
+    && yum clean all 
+RUN curl http://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz -o /tmp/nginx-${NGINX_VERSION}.tar.gz \
+    && tar xf /tmp/nginx-${NGINX_VERSION}.tar.gz -C /tmp \
+    && rm -f /tmp/nginx-${NGINX_VERSION}.tar.gz \
+    && useradd nginx -s /sbin/nologin -M
+WORKDIR /tmp/nginx-${NGINX_VERSION}
+RUN ./configure --prefix=/apps/nginx \
+     --user=nginx \
+     --group=nginx \
+     --with-http_ssl_module \
+     --with-http_v2_module \
+     --with-http_realip_module \
+     --with-http_stub_status_module \
+     --with-http_gzip_static_module \
+     --with-pcre \
+     --with-stream \
+     --with-stream_ssl_module \
+     --with-stream_realip_module \
+     && make && make install && make clean \
+     && ln -s /apps/nginx/sbin/nginx /usr/local/bin/nginx 
+WORKDIR /apps/nginx
+RUN rm -rf /tmp/nginx-${NGINX_VERSION}
 EXPOSE 80
-CMD ["/application/nginx/sbin/nginx", "-g", "daemon off;"]
+CMD ["nginx", "-g", "daemon off;"]
