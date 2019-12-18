@@ -27,8 +27,8 @@ RUN ./configure --prefix=/apps/nginx \
      --with-stream_realip_module \
      && make && make install && make clean \
      && ln -s /apps/nginx/sbin/nginx /usr/local/bin/nginx 
-WORKDIR /var/www/html
+WORKDIR /apps/nginx/html
 RUN rm -rf /tmp/nginx-${NGINX_VERSION} \
-    && setfacl -Rm u:nginx:rwx /var/www/html
+    && setfacl -Rm u:nginx:rwx /apps/nginx/html
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
